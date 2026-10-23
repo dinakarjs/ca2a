@@ -219,11 +219,7 @@ def test_trust_anchor_rejects_private_or_symmetric_jwk_parameters(
     nested = tmp_path / f"nested-{param}.json"
     nested.write_text(
         json.dumps(
-            {
-                "keys": [
-                    {"key_id": keypair.key_id, "public_key_base64url": pub_b64, param: "secret"}
-                ]
-            }
+            {"keys": [{"key_id": keypair.key_id, "public_key_base64url": pub_b64, param: "secret"}]}
         ),
         encoding="utf-8",
     )
@@ -250,4 +246,3 @@ def test_trust_anchor_rejects_non_canonical_base64url(tmp_path: Path, bad_pub: o
     path.write_text(json.dumps({"public_key_base64url": bad_pub}), encoding="utf-8")
     with pytest.raises(ConfigError):
         load_agent_manifest_trust_anchor(path)
-

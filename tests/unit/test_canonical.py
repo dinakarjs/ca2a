@@ -98,4 +98,3 @@ def test_lone_utf16_surrogates_rejected_with_deterministic_value_error(value: ob
     with pytest.raises(ValueError, match="lone UTF-16 surrogate") as exc_info:
         canonicalize(value)
     assert type(exc_info.value) is ValueError
-

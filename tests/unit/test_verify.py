@@ -173,4 +173,3 @@ def test_load_revocation_snapshot_rejects_duplicate_json_keys(tmp_path: Path) ->
     with pytest.raises(InvalidRevocation, match="invalid JSON") as exc_info:
         load_revocation_snapshot(p)
     assert "duplicate JSON object key" in (exc_info.value.detail or "")
-

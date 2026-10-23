@@ -434,4 +434,3 @@ def test_non_canonical_or_wrong_length_jwk_x_rejected(bad_x: str) -> None:
     bad_jwk = {"kty": "OKP", "crv": "Ed25519", "x": bad_x}
     with pytest.raises(TraceRecordInvalid):
         verify_trace_dag([root], trusted_keys=[bad_jwk])
-
