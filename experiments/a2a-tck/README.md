@@ -49,3 +49,17 @@ fixture coverage gaps; this change makes no production compatibility fix.
 This does not cover HTTP+JSON, gRPC, SHOULD/MAY, real hardware attestation,
 independent Go/JavaScript SDKs or cross-language cryptographic interoperability.
 The existing signed loopback tests are separate evidence, not TCK coverage.
+
+## Protected-path companion tests
+
+`tests/unit/test_a2a_sdk_loopback.py::test_sdk_protected_boundary_matrix` adds
+a real SDK/HTTP loopback matrix alongside this ordinary-path TCK comparison.
+The accepting case invokes the protected inventory handler once. Independently
+signed expired and revoked credentials, a correctly signed wrong-audience holder
+proof and a changed requested capability each return the expected refusal code
+and leave the protected-handler count at zero. Both requested capabilities are
+allowed by local policy in the altered-request case, isolating holder binding.
+
+These are cA2A-specific software tests, not new official TCK scenarios or hardware
+attestation. They do not take over ACTION-014/015 historical replay work. Run with
+`python -m pytest tests/unit/test_a2a_sdk_loopback.py -q` from this checkout.
