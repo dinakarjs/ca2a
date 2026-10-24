@@ -241,3 +241,59 @@ async def test_sdk_loopback_closes_port_when_caller_is_cancelled(node):
     async with httpx.AsyncClient(timeout=5, trust_env=False) as http:
         with pytest.raises(httpx.ConnectError):
             await http.get(f"{url}/.well-known/agent-card.json")
+
+
+@pytest.mark.parametrize("case", ["valid", "expired", "revoked", "wrong_audience", "altered_request"])
+async def test_sdk_protected_boundary_matrix(case):
+    """Signed, parseable negatives must never reach the protected handler."""
+    import time
+    from uuid import uuid4
+
+    from ca2a_runtime.delegation.credential import DelegationCredential, new_keypair
+    from ca2a_runtime.delegation.revocation import RevocationSnapshot, revoke
+
+    issuer_key, issuer = new_keypair()
+    holder, subject = new_keypair()
+    now = int(time.time())
+    credential = DelegationCredential(
+        credential_id=uuid4().hex, issuer=issuer, subject=subject,
+        scope=frozenset({demo.READ, demo.WRITE}), depth=0,
+        not_before=now - 600, not_after=now - 300 if case == "expired" else now + 600,
+    ).sign(issuer_key)
+    statements = (revoke(credential, issuer_key),) if case == "revoked" else ()
+    node = PeerNode(LocalPolicy.of({demo.READ, demo.WRITE}), trusted_root_issuers={issuer},
+                    revocation_source=lambda: RevocationSnapshot(int(time.time()), statements))
+    async with demo.serve(node) as (url, executor), httpx.AsyncClient(timeout=5, trust_env=False) as http:
+        _, client = await demo.connect(http, url)
+        message = await demo.delegated_message(http, url, [credential], holder, demo.READ)
+        if case in {"wrong_audience", "altered_request"}:
+            from ca2a_runtime.delegation.holder import build_holder_proof
+            from ca2a_runtime.transport.a2a_adapter import parse_peer_request
+            from ca2a_runtime.transport.a2a_sdk import (
+                attach_to_sdk_message,
+                metadata_from_sdk_message,
+            )
+
+            request = parse_peer_request({"metadata": metadata_from_sdk_message(message)})
+            assert request is not None
+            if case == "wrong_audience":
+                # Sign with the correct holder but commit a different audience.
+                proof = build_holder_proof(holder, credential, audience="a" * 64,
+                    challenge=request.holder_proof.challenge, requested_capability=demo.READ,
+                    record_id=request.record_id, sealed_payload=request.sealed_payload)
+                from dataclasses import replace
+                request = replace(request, holder_proof=proof)
+            else:
+                from dataclasses import replace
+                # Both capabilities are allowed; only the holder binding should reject this.
+                request = replace(request, requested_capability=demo.WRITE)
+            message = attach_to_sdk_message(new_text_message("bound request", role=Role.ROLE_USER), request)
+        result = await demo.send(client, message, ca2a=True)
+        if case == "valid":
+            assert result["accepted"] is True
+            assert executor.invocations == 1
+        else:
+            expected = {"expired": "CREDENTIAL_EXPIRED", "revoked": "CREDENTIAL_REVOKED",
+                        "wrong_audience": "HOLDER_PROOF_INVALID", "altered_request": "HOLDER_PROOF_INVALID"}
+            assert result == {"accepted": False, "error": expected[case]}
+            assert executor.invocations == 0
