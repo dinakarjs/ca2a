@@ -293,4 +293,3 @@ def test_parse_channel_offer_rejects_non_string_or_empty_claim_fields(
         offer_dict["attestation"] = att
     with pytest.raises(TransportError, match="malformed channel offer"):
         wire.parse_channel_offer(offer_dict)
-
