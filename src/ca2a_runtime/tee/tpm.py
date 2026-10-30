@@ -125,9 +125,7 @@ class TpmQuote:
     @classmethod
     def parse(cls, blob: bytes) -> TpmQuote:
         if not isinstance(blob, (bytes, bytearray, memoryview)):
-            raise AttestationFailed(
-                "TPM quote must be bytes", detail=f"got {type(blob).__name__}"
-            )
+            raise AttestationFailed("TPM quote must be bytes", detail=f"got {type(blob).__name__}")
         blob = bytes(blob)
         if len(blob) < 6:
             raise AttestationFailed("TPM quote too short")
@@ -508,7 +506,9 @@ class TpmProvider(BaseProvider):
                     ) as response:
                         raw = response.read(_AIA_MAX_CERT_BYTES + 1)
                     if len(raw) > _AIA_MAX_CERT_BYTES:
-                        logger.debug("AIA response exceeded %d bytes for %s", _AIA_MAX_CERT_BYTES, url)
+                        logger.debug(
+                            "AIA response exceeded %d bytes for %s", _AIA_MAX_CERT_BYTES, url
+                        )
                         continue
                     found = load_any(raw)
                 except Exception as exc:  # noqa: BLE001
