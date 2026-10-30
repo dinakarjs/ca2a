@@ -446,9 +446,11 @@ def test_safe_integer_bounds_and_possession_hex_validation() -> None:
         verify_caller_possession(
             CallerPossession(CALLER_OFFER_VERSION, "\ud800"),
             callee_private_key=TEST_CALLEE_KEY,
-            transcript={"callee_channel_key": TEST_CALLEE_PUB, "caller_channel_key": TEST_CALLEE_PUB},
+            transcript={
+                "callee_channel_key": TEST_CALLEE_PUB,
+                "caller_channel_key": TEST_CALLEE_PUB,
+            },
         )
-
 
 
 def test_unauthenticated_caller_never_reaches_policy_evaluation() -> None:

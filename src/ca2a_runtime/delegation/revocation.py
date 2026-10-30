@@ -84,9 +84,7 @@ def credential_digest(credential: DelegationCredential) -> str:
 
 def _non_negative_int(value: Any) -> bool:
     return (
-        isinstance(value, int)
-        and not isinstance(value, bool)
-        and 0 <= value <= _MAX_SAFE_INTEGER
+        isinstance(value, int) and not isinstance(value, bool) and 0 <= value <= _MAX_SAFE_INTEGER
     )
 
 

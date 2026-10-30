@@ -252,9 +252,7 @@ class CallerPossession:
         if not isinstance(version, str) or not version:
             raise AttestationFailed("caller_possession.version must be a non-empty string")
         if not isinstance(mac, str) or not _POSSESSION_MAC_RE.fullmatch(mac):
-            raise AttestationFailed(
-                "caller_possession.mac must be 64 lowercase hex characters"
-            )
+            raise AttestationFailed("caller_possession.mac must be 64 lowercase hex characters")
         return cls(version=version, mac=mac)
 
 
@@ -371,9 +369,7 @@ def verify_caller_possession(
             detail=f"got {possession.version!r}, expected {CALLER_OFFER_VERSION!r}",
         )
     if not isinstance(possession.mac, str) or not _POSSESSION_MAC_RE.fullmatch(possession.mac):
-        raise AttestationFailed(
-            "caller_possession.mac must be 64 lowercase hex characters"
-        )
+        raise AttestationFailed("caller_possession.mac must be 64 lowercase hex characters")
     callee_channel_key = callee_private_key.public_key().public_bytes_raw().hex()
     if transcript.get("callee_channel_key") != callee_channel_key:
         raise AttestationFailed("possession transcript names a different callee channel key")
