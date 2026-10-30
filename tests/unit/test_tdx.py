@@ -282,4 +282,3 @@ def test_nonzero_trailing_bytes_or_nested_container_slack_rejected(quote_and_roo
     new_sig = sig[:128] + struct.pack("<HI", 6, len(cert_data)) + cert_data
     with pytest.raises(AttestationFailed, match="trailing bytes after PCK certificate chain"):
         TdxQuote.parse(head + struct.pack("<I", len(new_sig)) + new_sig)
-

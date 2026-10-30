@@ -216,4 +216,3 @@ def test_peer_node_rejects_bool_or_non_positive_challenge_ttl(bad_ttl: object) -
 def test_non_mapping_attestation_config_rejected(bad_att: object) -> None:
     with pytest.raises(ConfigError, match="attestation must be a mapping"):
         Ca2aConfig.from_dict({"attestation": bad_att})
-
