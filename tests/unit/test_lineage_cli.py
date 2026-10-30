@@ -200,4 +200,3 @@ def test_cli_rejects_duplicate_json_keys_and_non_string_record_fields(evidence, 
     )
     out = json.loads(capsys.readouterr().out)
     assert rc == 1 and out["code"] == "INVALID_CREDENTIAL"
-

@@ -169,9 +169,7 @@ def _load_records(path: str) -> list[DelegationRecord]:
                         if item.get("effective_scope") is None
                         else _require_str_frozenset("effective_scope", item.get("effective_scope"))
                     ),
-                    denial_reason=_require_optional_str(
-                        "denial_reason", item.get("denial_reason")
-                    ),
+                    denial_reason=_require_optional_str("denial_reason", item.get("denial_reason")),
                     # A record written before this field existed hashes as
                     # "not_offered", which is what its emitter could honestly have
                     # claimed: it never appraised a caller.
