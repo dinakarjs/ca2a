@@ -55,8 +55,7 @@ def verify_tdx_quote(
 ) -> TdxQuote:
     """Appraise a TDX quote offline. Raises AttestationFailed on any failure."""
     if expected_mrtd is not None and (
-        not isinstance(expected_mrtd, (bytes, bytearray, memoryview))
-        or len(expected_mrtd) != 48
+        not isinstance(expected_mrtd, (bytes, bytearray, memoryview)) or len(expected_mrtd) != 48
     ):
         raise ValueError("expected_mrtd must be a 48-byte TDX MRTD")
     if expected_report_data is not None and (
